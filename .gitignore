@@ -13,6 +13,9 @@
 # testing
 /coverage
 
+# vitest temp config artifacts
+vitest.config.*.timestamp-*.mjs
+
 # next.js
 /.next/
 /out/
