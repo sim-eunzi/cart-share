@@ -1,29 +1,29 @@
 import { NextResponse } from 'next/server';
-import { RemoveItemResponse } from '@/types';
+import { CartService } from '@/services/cart-service';
+import { FINGERPRINT_COOKIE_NAME, HTTP_STATUS } from '@/lib/constants';
 
-/**
- * 장바구니 상품 삭제 API
- * DELETE /api/carts/[id]/items/[itemId]
- */
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string; itemId: string }> }
 ) {
   try {
-    const { id, itemId } = await params;
-    const token = request.headers.get('Authorization');
+    const { id: cartId, itemId } = await params;
+    const fingerprint = (request as any).cookies?.get(FINGERPRINT_COOKIE_NAME)?.value;
 
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!fingerprint) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: HTTP_STATUS.UNAUTHORIZED }
+      );
     }
 
-    // TODO: 구현 필요
-    const response: RemoveItemResponse = {
-      success: true,
-    };
-
+    const response = await CartService.removeItem(cartId, itemId, fingerprint);
     return NextResponse.json(response);
-  } catch (error) {
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  } catch (error: any) {
+    let status = HTTP_STATUS.INTERNAL_SERVER_ERROR;
+    if (error.message === 'Cart not found') status = HTTP_STATUS.NOT_FOUND;
+    if (error.message === 'Forbidden') status = HTTP_STATUS.FORBIDDEN;
+    
+    return NextResponse.json({ error: error.message }, { status });
   }
 }

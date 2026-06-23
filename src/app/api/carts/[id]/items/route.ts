@@ -1,34 +1,36 @@
 import { NextResponse } from 'next/server';
-import { AddItemResponse } from '@/types';
+import { CartService } from '@/services/cart-service';
+import { FINGERPRINT_COOKIE_NAME, HTTP_STATUS } from '@/lib/constants';
 
-/**
- * 장바구니 상품 추가 API
- * POST /api/carts/[id]/items
- */
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = await params;
-    const token = request.headers.get('Authorization');
+    const { id: cartId } = await params;
+    const { url } = await request.json();
+    const fingerprint = (request as any).cookies?.get(FINGERPRINT_COOKIE_NAME)?.value;
 
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!url) {
+      return NextResponse.json(
+        { error: 'URL is required' },
+        { status: HTTP_STATUS.BAD_REQUEST }
+      );
+    }
+    if (!fingerprint) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: HTTP_STATUS.UNAUTHORIZED }
+      );
     }
 
-    // TODO: 구현 필요 (OG 추출 및 DB 업데이트)
-    const response: AddItemResponse = {
-      item: {
-        id: 'dummy-item-id',
-        url: 'https://example.com',
-        title: 'Dummy Item',
-        createdAt: new Date().toISOString(),
-      },
-    };
-
+    const response = await CartService.addItem(cartId, url, fingerprint);
     return NextResponse.json(response);
-  } catch (error) {
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  } catch (error: any) {
+    let status = HTTP_STATUS.INTERNAL_SERVER_ERROR;
+    if (error.message === 'Cart not found') status = HTTP_STATUS.NOT_FOUND;
+    if (error.message === 'Forbidden') status = HTTP_STATUS.FORBIDDEN;
+    
+    return NextResponse.json({ error: error.message }, { status });
   }
 }
