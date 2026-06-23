@@ -5,6 +5,7 @@ import type { CartItem } from "@/types";
 import { getCart, addItem, removeItem, CartNotFoundError } from "@/lib/api";
 import { RetroWindow } from "@/components/ui/RetroWindow";
 import { PixelButton } from "@/components/ui/PixelButton";
+import { PixelHeart } from "@/components/ui/PixelHeart";
 import { CartGrid } from "@/components/cart/CartGrid";
 import { AddItemForm } from "@/components/cart/AddItemForm";
 import { EmptyState } from "@/components/cart/EmptyState";
@@ -93,9 +94,9 @@ export function EditView({ id, token }: EditViewProps) {
   return (
     <RetroWindow title={`MY CART · /e/${id}`} stage="STAGE 2 — 내 장바구니 (소유자)">
       <div className="p-4">
-        <h1 className="font-body text-xl font-bold text-ink mb-3">
+        <h1 className="flex items-center gap-2.5 font-body text-2xl font-bold text-ink mb-3">
+          <PixelHeart size={26} className="shrink-0" />
           {title}
-          <span className="font-body text-base font-medium text-ink/60">의 장바구니</span>
         </h1>
         <div className="flex items-center gap-2 bg-pinklight border-[3px] border-ink px-3 py-2 mb-4">
           <span className="font-pixel text-[9px] text-white bg-rose border-2 border-ink px-1.5 py-1 shrink-0">

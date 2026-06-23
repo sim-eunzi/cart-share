@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { CartItem } from "@/types";
 import { getCart, CartNotFoundError } from "@/lib/api";
 import { RetroWindow } from "@/components/ui/RetroWindow";
+import { PixelHeart } from "@/components/ui/PixelHeart";
 import { CartGrid } from "@/components/cart/CartGrid";
 import { EmptyState } from "@/components/cart/EmptyState";
 
@@ -62,9 +63,9 @@ export function ShareView({ id }: ShareViewProps) {
   return (
     <RetroWindow title={`SHARED · /c/${id}`} stage="STAGE 4 — 친구 뷰 (읽기 전용)">
       <div className="p-4">
-        <h1 className="font-body text-xl font-bold text-ink mb-4">
+        <h1 className="flex items-center gap-2.5 font-body text-2xl font-bold text-ink mb-4">
+          <PixelHeart size={26} className="shrink-0" />
           {title}
-          <span className="font-body text-base font-medium text-ink/70 ml-1">의 장바구니 ♥</span>
         </h1>
         {items.length === 0 ? (
           <EmptyState message="아직 담긴 상품이 없어요" />

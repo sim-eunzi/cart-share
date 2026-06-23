@@ -7,6 +7,12 @@ interface ProductCardProps {
   onRemove?: (id: string) => void;
 }
 
+function formatPrice(raw: string): string {
+  const digits = raw.replace(/[^\d]/g, "");
+  if (!digits) return raw;
+  return `₩${Number(digits).toLocaleString("ko-KR")}`;
+}
+
 function ImagePlaceholder() {
   return (
     <div
@@ -54,6 +60,11 @@ export function ProductCard({ item, variant, onRemove }: ProductCardProps) {
         <div className="font-body text-sm text-ink leading-snug line-clamp-2">
           {item.title ?? "제목 없음"}
         </div>
+        {item.price && (
+          <div className="font-body text-sm font-bold text-rose mt-1">
+            {formatPrice(item.price)}
+          </div>
+        )}
         {hostname && (
           <div className="font-body text-xs text-ink/60 mt-1 truncate">{hostname}</div>
         )}
