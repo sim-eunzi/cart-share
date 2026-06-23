@@ -11,7 +11,7 @@ function ImagePlaceholder() {
   return (
     <div
       data-testid="image-placeholder"
-      className="h-20 bg-pinklight border-b-[3px] border-ink flex items-center justify-center"
+      className="aspect-square bg-pinklight border-b-[3px] border-ink flex items-center justify-center"
     >
       <svg width="30" height="26" viewBox="0 0 30 26" aria-hidden="true">
         <rect x="0" y="0" width="30" height="26" fill="none" stroke="#7a1f3d" strokeWidth="3" />
@@ -44,7 +44,7 @@ export function ProductCard({ item, variant, onRemove }: ProductCardProps) {
         <img
           src={item.image}
           alt={item.title ?? "상품 이미지"}
-          className="h-20 w-full object-cover border-b-[3px] border-ink"
+          className="aspect-square w-full object-cover border-b-[3px] border-ink"
         />
       ) : (
         <ImagePlaceholder />

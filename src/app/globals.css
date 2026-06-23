@@ -36,7 +36,10 @@ body {
   background-color: var(--color-pinkpale);
   background-image: var(--pixel-grid);
   background-size: 16px 16px;
-  -webkit-font-smoothing: none;   /* 픽셀 폰트 또렷하게 */
+  /* 픽셀 폰트라도 안티에일리어싱을 켜서 작은 한글의 계단현상(자글거림)을 없앤다 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* 픽셀 버튼 공통 눌림 효과 (하드 섀도우가 줄며 눌림) */

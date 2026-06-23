@@ -93,10 +93,19 @@ export function EditView({ id, token }: EditViewProps) {
   return (
     <RetroWindow title={`MY CART · /e/${id}`} stage="STAGE 2 — 내 장바구니 (소유자)">
       <div className="p-4">
-        <h1 className="font-body text-xl text-ink mb-1">{title}</h1>
-        <p className="font-body text-xs text-ink/50 mb-4">
-          ⚠ 이 수정 링크는 나만 보관하세요. 친구에겐 아래 SHARE 링크를 보내세요.
-        </p>
+        <h1 className="font-body text-xl font-bold text-ink mb-3">
+          {title}
+          <span className="font-body text-base font-medium text-ink/60">의 장바구니</span>
+        </h1>
+        <div className="flex items-center gap-2 bg-pinklight border-[3px] border-ink px-3 py-2 mb-4">
+          <span className="font-pixel text-[9px] text-white bg-rose border-2 border-ink px-1.5 py-1 shrink-0">
+            !
+          </span>
+          <p className="font-body text-xs text-ink leading-relaxed">
+            이 수정 링크는 <span className="font-bold">나만</span> 보관하세요 · 친구에겐 아래{" "}
+            <span className="font-bold">SHARE</span> 링크를 보내세요
+          </p>
+        </div>
 
         {items.length === 0 ? (
           <EmptyState message="링크를 추가해 첫 상품을 담아보세요" />
