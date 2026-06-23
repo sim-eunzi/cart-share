@@ -182,6 +182,8 @@ export class CartService {
       const response = await fetch(url, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+          'accept-encoding': 'gzip, deflate, br',
+          'accept-language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
         },
         next: { revalidate: 3600 }
       });
