@@ -4,6 +4,7 @@ import type {
   AddItemResponse,
   CartItem,
 } from "@/types";
+import { ensureFingerprint } from "./fingerprint";
 
 /** 일반 API 오류 */
 export class ApiError extends Error {
@@ -35,6 +36,7 @@ async function parseOrThrow<T>(res: Response): Promise<T> {
 
 /** 카트 생성 — POST /api/carts */
 export async function createCart(title: string): Promise<CreateCartResponse> {
+  ensureFingerprint();
   const res = await fetch("/api/carts", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -55,6 +57,7 @@ export async function addItem(
   url: string,
   token: string,
 ): Promise<CartItem> {
+  ensureFingerprint();
   const res = await fetch(`/api/carts/${id}/items`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: token },
@@ -70,6 +73,7 @@ export async function removeItem(
   itemId: string,
   token: string,
 ): Promise<boolean> {
+  ensureFingerprint();
   const res = await fetch(`/api/carts/${id}/items/${itemId}`, {
     method: "DELETE",
     headers: { Authorization: token },

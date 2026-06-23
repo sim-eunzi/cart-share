@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { FingerprintBootstrap } from "@/components/FingerprintBootstrap";
 
 export const metadata: Metadata = {
   title: "What's in my cart?",
@@ -13,7 +14,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className="h-full">
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <FingerprintBootstrap />
+        {children}
+      </body>
     </html>
   );
 }

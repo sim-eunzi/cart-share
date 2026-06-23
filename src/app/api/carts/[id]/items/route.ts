@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { CartService } from '@/services/cart-service';
 import { FINGERPRINT_COOKIE_NAME, HTTP_STATUS } from '@/lib/constants';
 
@@ -9,7 +10,8 @@ export async function POST(
   try {
     const { id: cartId } = await params;
     const { url } = await request.json();
-    const fingerprint = (request as any).cookies?.get(FINGERPRINT_COOKIE_NAME)?.value;
+    const cookieStore = await cookies();
+    const fingerprint = cookieStore.get(FINGERPRINT_COOKIE_NAME)?.value;
 
     if (!url) {
       return NextResponse.json(
