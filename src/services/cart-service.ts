@@ -32,7 +32,7 @@ export class CartService {
         .insert([{ token: fingerprint }])
         .select()
         .single();
-      
+
       if (createError) throw createError;
       user = newUser;
     }
@@ -67,7 +67,7 @@ export class CartService {
 
     if (error || !cart) throw new Error('장바구니를 찾을 수 없습니다.');
     if (cart.user_id !== userId) throw new Error('해당 장바구니에 대한 권한이 없습니다.');
-    
+
     return cart;
   }
 
@@ -80,11 +80,11 @@ export class CartService {
 
     const { error } = await supabase
       .from('carts')
-      .insert([{ 
-        id: cartId, 
-        user_id: user.id, 
+      .insert([{
+        id: cartId,
+        user_id: user.id,
         title,
-        items: [] 
+        items: []
       }]);
 
     if (error) throw error;
@@ -141,7 +141,7 @@ export class CartService {
     const newItem: CartItem = {
       id: nanoid(ITEM_ID_LENGTH),
       url,
-      ...ogData,
+      ...ogData, // 여기에 title, image, price가 포함됩니다.
       createdAt: new Date().toISOString(),
     };
 
@@ -175,7 +175,7 @@ export class CartService {
   }
 
   /**
-   * URL에서 메타데이터(제목, 이미지)를 추출합니다.
+   * URL에서 메타데이터(제목, 이미지, 가격)를 추출합니다.
    */
   private static async extractOgTags(url: string) {
     try {
@@ -191,10 +191,11 @@ export class CartService {
       return {
         title: $('meta[property="og:title"]').attr('content') || $('title').text() || undefined,
         image: $('meta[property="og:image"]').attr('content') || undefined,
+        price: $('meta[property="og:price:amount"]').attr('content') || $('meta[property="product:price:amount"]').attr('content') || undefined,
       };
     } catch (error) {
-      console.error('OG extraction failed:', error);
-      return { title: undefined, image: undefined };
+      console.error('OG 추출 실패:', error);
+      return { title: undefined, image: undefined, price: undefined };
     }
   }
 }

@@ -39,7 +39,7 @@ async function testFlow() {
     
     if (!addItemRes.ok) throw new Error(`Add item failed: ${await addItemRes.text()}`);
     const { item } = await addItemRes.json();
-    console.log(`✅ Item added! Title: "${item.title}"`);
+    console.log(`✅ Item added! Title: "${item.title}", Price: "${item.price || 'N/A'}"`);
     const itemId = item.id;
 
     // 3. Get Cart (Public Access)
@@ -49,6 +49,9 @@ async function testFlow() {
     if (!getRes.ok) throw new Error(`Fetch failed: ${await getRes.text()}`);
     const cartData = await getRes.json();
     console.log(`✅ Cart fetched! Items count: ${cartData.items.length}`);
+    if (cartData.items.length > 0) {
+      console.log(`   Sample Item Price in Cart: "${cartData.items[0].price || 'N/A'}"`);
+    }
 
     // 4. Remove Item
     console.log('\n[4/5] Removing Item...');

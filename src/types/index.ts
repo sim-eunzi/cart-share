@@ -6,6 +6,7 @@ export interface CartItem {
   url: string;
   title?: string;
   image?: string;
+  price?: string;
   createdAt: string; // ISO 8601 string
 }
 
