@@ -1,11 +1,6 @@
 import { NextResponse } from 'next/server';
-import { GetCartResponse } from '@/types';
-
-/**
- * 장바구니 조회 및 삭제 API
- * GET /api/carts/[id]
- * DELETE /api/carts/[id]
- */
+import { CartService } from '@/services/cart-service';
+import { FINGERPRINT_COOKIE_NAME, HTTP_STATUS } from '@/lib/constants';
 
 export async function GET(
   request: Request,
@@ -13,17 +8,11 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    // TODO: 구현 필요
-    const response: GetCartResponse = {
-      id,
-      title: 'Dummy Cart',
-      items: [],
-      createdAt: new Date().toISOString(),
-    };
-
+    const response = await CartService.getCart(id);
     return NextResponse.json(response);
-  } catch (error) {
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  } catch (error: any) {
+    const status = error.message === 'Cart not found' ? HTTP_STATUS.NOT_FOUND : HTTP_STATUS.INTERNAL_SERVER_ERROR;
+    return NextResponse.json({ error: error.message }, { status });
   }
 }
 
@@ -33,15 +22,19 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const token = request.headers.get('Authorization');
+    const fingerprint = (request as any).cookies?.get(FINGERPRINT_COOKIE_NAME)?.value;
 
-    if (!token) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!fingerprint) {
+      return NextResponse.json(
+        { error: `Unauthorized: No ${FINGERPRINT_COOKIE_NAME} cookie` },
+        { status: HTTP_STATUS.UNAUTHORIZED }
+      );
     }
 
-    // TODO: 구현 필요
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    const response = await CartService.deleteCart(id, fingerprint);
+    return NextResponse.json(response);
+  } catch (error: any) {
+    const status = error.message === 'Forbidden' ? HTTP_STATUS.FORBIDDEN : HTTP_STATUS.INTERNAL_SERVER_ERROR;
+    return NextResponse.json({ error: error.message }, { status });
   }
 }
