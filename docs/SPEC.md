@@ -24,7 +24,6 @@
 ### M1 (이번 목표)
 - 카트 생성 (제목 + URL 여러 개)
 - OG 추출: **이미지·제목만** (실패 시 null 폴백)
-- 가격: 사용자 **수동 입력/수정**
 - 공유 보기 (읽기 전용) + 사러 가기
 - 수정 (상품 추가/삭제, 제목 변경)
 
@@ -43,41 +42,68 @@
 | `/c/[shareToken]` | 공유 보기 (읽기 전용, "사러 가기") | 공유 토큰 |
 | `/e/[editToken]` | 수정 (추가/삭제, 제목 변경) | 수정 토큰 |
 
-## 5. 데이터 모델 (참고 — DB는 백엔드에서 확정)
+## 5. 데이터 모델 (Supabase - JSONB 활용)
 
-```
-Cart
-  id          string
-  title       string
-  shareToken  string  unique   // 공유 링크 (읽기)
-  editToken   string  unique   // 수정 링크 (쓰기)
-  createdAt   datetime
+### 유저 테이블 (`users`)
+- `id`: string (UUID)
+- `token`: string (관리 및 수정을 위한 보안 토큰)
+- `createdAt`: datetime
+- `updatedAt`: datetime
 
-Item
-  id        string
-  cartId    string  -> Cart
-  url       string             // 원본 쇼핑몰 (사러 가기)
-  image     string?            // og:image
-  title     string?            // og:title
-  price     string?            // 수동 입력
-  order     int                // 정렬용
-```
+### 장바구니 테이블 (`carts`)
+- `id`: string (공유용 nanoid/UUID)
+- `user_id`: string (FK -> users.id)
+- `createdAt`: datetime
+- `updatedAt`: datetime
+- `items`: JSONB (상품 목록 리스트)
+    - `id`: string
+    - `url`: string (상품 URL)
+    - `title`: string? (미리보기 제목)
+    - `image`: string? (미리보기 이미지)
+    - `createdAt`: datetime (상품 추가일)
+
+---
 
 ## 6. 보안/주의 (중요)
 
-- **공유 응답에 `editToken`을 절대 포함하지 않는다.** 공유 페이지가 수정 권한으로 새지 않도록 API 단에서 제외.
-- 토큰은 추측 불가능한 랜덤(예: cuid/nanoid). 순번 ID 금지.
+- **공유 응답에 `token`을 절대 포함하지 않는다.** 공유 페이지가 수정 권한으로 새지 않도록 API 단에서 제외.
+- 토큰은 추측 불가능한 랜덤(예: nanoid). 순번 ID 금지.
 - OG 추출은 외부 URL fetch이므로 타임아웃·실패 처리 필수 (실패해도 카드 생성은 성공).
 
 ## 7. 역할 분담
 
-- **백엔드 (친구)** — DB 스키마, API Route Handler, OG 추출 유틸. 라벨 `area:backend`
-- **프론트 (나)** — 페이지/컴포넌트, 폼/UX. 라벨 `area:frontend`
-- 경계: 같은 레포의 `src/app/api/*` = 백엔드, 나머지 `src/app/*` = 프론트
-- API 계약은 추후 별도 문서로 합의 예정.
+- **백엔드** — Supabase 설정, API Route Handler, OG 추출 유틸.
+- **프론트** — 페이지/컴포넌트, 스타일링(Vanilla CSS), 폼 처리.
+- 경계: `src/app/api/*` = 백엔드, 나머지 `src/app/*` = 프론트
 
 ## 8. 기술 스택
 
-- Next.js 16 (App Router) + TypeScript + Tailwind CSS 4
-- API: Next.js Route Handlers (`src/app/api/*`)
-- DB: 백엔드 담당이 확정 (프로토타입은 SQLite + Prisma 권장)
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **Styling**: Vanilla CSS (Premium & Dynamic Design)
+- **Database**: Supabase (PostgreSQL with JSONB)
+- **Deployment**: Vercel
+
+---
+
+## 9. API 설계 (Next.js Route Handlers)
+
+### 9.1 장바구니 (Carts)
+- **POST `/api/carts`** (생성)
+    - 본문: `{ title: string }`
+    - 응답: `{ cartId: string, token: string }` (유저 생성 및 카트 연결)
+- **GET `/api/carts/[id]`** (조회)
+    - 설명: 누구나 조회 가능 (공유용)
+    - 응답: `{ id, title, items, createdAt }`
+- **DELETE `/api/carts/[id]`** (삭제)
+    - 헤더: `Authorization: <token>`
+    - 설명: 토큰 소유자만 삭제 가능
+
+### 9.2 장바구니 상품 (Items)
+- **POST `/api/carts/[id]/items`** (추가)
+    - 헤더: `Authorization: <token>`
+    - 본문: `{ url: string }`
+    - 설명: 서버에서 OG 태그 추출 후 `items` JSONB 배열에 추가
+- **DELETE `/api/carts/[id]/items/[itemId]`** (제거)
+    - 헤더: `Authorization: <token>`
+    - 설명: `items` 리스트에서 특정 ID 상품 제거
