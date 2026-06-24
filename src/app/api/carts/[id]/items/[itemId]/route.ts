@@ -22,7 +22,7 @@ export async function DELETE(
     const response = await CartService.removeItem(cartId, itemId, fingerprint);
     return NextResponse.json(response);
   } catch (error: any) {
-    let status = HTTP_STATUS.INTERNAL_SERVER_ERROR;
+    let status: number = HTTP_STATUS.INTERNAL_SERVER_ERROR;
     if (error.message === 'Cart not found') status = HTTP_STATUS.NOT_FOUND;
     if (error.message === 'Forbidden') status = HTTP_STATUS.FORBIDDEN;
     

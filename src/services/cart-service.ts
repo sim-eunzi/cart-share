@@ -36,6 +36,8 @@ export class CartService {
       if (createError) throw createError;
       user = newUser;
     }
+
+    if (!user) throw new Error('사용자를 생성하지 못했습니다.');
     return user;
   }
 
